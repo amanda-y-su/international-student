@@ -58,15 +58,22 @@ country_indicators <- country %>%
   left_join(vdem, by = c("year", "wb_code")) %>%
   left_join(wbdata, by = c("year", "wb_code")) %>%
   left_join(field_by_country, by = "wb_code") %>%
-  select(-country_name.y, -country)
+  select(-country_name.y, -country) %>%
+  filter(country_name.x != "Mexico and Central America")
 
 country_indicators$year <- as.integer(country_indicators$year)
 
 funding <- read_xlsx("raw-data/International-Students-Primary-Source-of-Funding.xlsx", skip = 5) %>%
   clean_names() %>%
-  select(x1, x2017_18) %>%
+  select(x1, x2018_19) %>%
   set_names(c("funding_source", "num_students")) %>%
   na.omit()
+
+enrollment <- read_xlsx("raw-data/International-Students-Enrollment.xlsx", skip =4) %>%
+  clean_names() %>%
+  slice(53:71)
+
+write_rds(enrollment, "clean-data/enrollment.rds")
 
 write_rds(country_indicators, "clean-data/country_indicators.rds")
 
