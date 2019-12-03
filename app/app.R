@@ -8,9 +8,11 @@ library(wesanderson)
 library(viridis)
 library(RColorBrewer)
 library(janitor)
+library(networkD3)
 
 country_indicators <- read_rds("country_indicators.rds")
 funding <- read_rds("funding.rds")
+enrollment <- read_rds("enrollment.rds")
 
 ui <- fluidPage(
   theme = shinytheme("flatly"),
@@ -28,16 +30,20 @@ ui <- fluidPage(
       br(),
       
       p("Despite previous trends of growth, the number of international students newly enrolling at a U.S. institution dropped for the first time in recent years in fall 2016. A national survey of staff at more than 500 U.S. higher education institutions showed a 7 percent decline in new international student enrollment in fall 2017, according to the Migration Policy Institute. Survey participants attributed the drop to a combination of factors including visa delays and denials, the costs of U.S. higher education, the shifting social and political climate, notably after the election of President Donald Trump, competition from institutions in other countries, and prospective students’ concerns about securing a job in the United States after graduation."),
-      p("In recent years, China has been the top origin country for international students in the U.S, followed by India, South Korea, and Saudi Arabia. However, this wasn’t always the case. Prior to the passage of the Immigration Act of 1965, students from Canada, Taiwan, India, and several European and Latin American countries predominated in international student enrollment. The Immigration Act, which abolished the National Origins Formula that had largely been used to restrict immigration from Asia, Southern Europe, and Eastern Europe, reversed this trend. The U.S. subsequently saw an influx of international students from Asia. "),
+      
+      br(),
       
       plotlyOutput("enrollment"),
       
+    
       br(),
       
       h2("A Study"),
       p("This project looks to analyze various patterns in the experiences and motivations of international students in the United States. I visualize in several ways the distribution of international students across regions of origin from 2009 to 2019, the different indicators in countries of origin that may influence how many international students study in the U.S., the distribution of international students' fields of study, and the distribution of their primary sources of funding."),
       p("I used data from the Institute of International Education, the World Bank, and Varieties of Democracy. IIE tracked the number of international students in the U.S. and their countries of origin throughout the last decade and also provided the numbers I used to visualize the distribution of primary funding sources and fields of study.The World Bank dataset provides hundreds of statistics for different country indicators, including Gross Domestic Product per capita and population. The Varieties of Democracy dataset measures democracy in different countries by hundreds of factors, including my variables of interest: education equality, freedom of academic and cultural expression, and freedom of foreign movement."),
-      br(),
+      p("The source code for this project can be found at my GitHub ",
+        a("here",
+          href = "https://github.com/amanda-y-su/international-student"),"."),
       br()
 
     ),
@@ -45,7 +51,9 @@ ui <- fluidPage(
 
     tabPanel(
       "Geographical Regions of Origin",
-      plotlyOutput("region")
+        
+          plotlyOutput("region")
+          
     ),
 
     tabPanel(
@@ -80,7 +88,7 @@ ui <- fluidPage(
     ),
     
     tabPanel(
-      "About Me",
+      "About",
       h2("Amanda Y. Su"),
       p("I'm a sophomore at Harvard College studying History & Literature and pursuing a career in journalism. Though I am originally from the Bay Area, I currently live in Zurich, Switzerland. I'm intellectually and personally interested in issues of race, ethnicity, immigration, education, and their intersections. As a student, I'm always looking for opportunities to understand these topics more deeply through my work in academia, journalism, photography, and data science."),
       p("To learn more about me and what I do, you can:"),
@@ -93,10 +101,12 @@ ui <- fluidPage(
       p("— Visit my ",
         a("personal website",
         href = "https://www.amanda-su.com/"))
+
       
     )
   )
 )
+
 
 
 
@@ -110,7 +120,7 @@ server <- function(input, output) {
                      country_name.x != "Mexico and Central America") %>%
               group_by(year) %>%
               summarize(total = sum(num_students)) %>%
-              ggplot(aes(as.factor(year), total, fill = I("#A1C6B7"))) + 
+              ggplot(aes(as.factor(year), total, fill = I("#A1C6B7"), text = paste('<b>Total:</b>', total))) + 
               geom_col() + 
               scale_y_continuous(label = comma) +
               labs(
@@ -120,7 +130,7 @@ server <- function(input, output) {
                ) + 
       theme(legend.position = "none")
   
-  ggplotly(total_plot, width = 800, height = 400, tooltip = "total") %>%
+  ggplotly(total_plot, width = 800, height = 400, tooltip = "text") %>%
       layout(annotations = 
                list(x = 1, y = -0.16, text = "Source: Institute of International Education", 
                     showarrow = F, xref='paper', yref='paper', 
@@ -132,8 +142,8 @@ server <- function(input, output) {
   
   output$enrollment <- renderPlotly({
     enrollment_ggplot <- enrollment %>%
-      ggplot(aes(year, percent_change)) +
-      geom_bar(stat = "identity", aes(fill = I("#E7C899")), legend = FALSE) +
+      ggplot(aes(year, percent_change, text = paste('<b>Percent Change:</b>', percent_change, '%'))) +
+      geom_bar(stat = "identity", aes(fill = I("#E7C899"))) +
       labs(
         title = "Annual Percent Change of International Students Enrolled in U.S.", 
         x = "Academic Year",
@@ -145,7 +155,7 @@ server <- function(input, output) {
       ) 
     
     
-    ggplotly(enrollment_ggplot, width = 800, height = 400, tooltip = "total") %>%
+    ggplotly(enrollment_ggplot, width = 800, height = 400, tooltip = "text") %>%
       layout(annotations = 
                list(x = 1, y = -0.25, text = "Source: Institute of International Education", 
                     showarrow = F, xref='paper', yref='paper', 
@@ -176,7 +186,7 @@ server <- function(input, output) {
       labs(
         title = "Proportion of Origin Region's Population that are International Students in the U.S.", 
         x = "Year",
-        y = "Percent Change"
+        y = ""
       ) +
       scale_fill_gradientn(colors = (wes_palette("Darjeeling2", type = "discrete")))
     
@@ -191,41 +201,64 @@ server <- function(input, output) {
   output$country_indicator <- renderPlotly ({
   
       if (input$indicator == "gdp") {
+        
+        prop_gdp <- country_indicators %>%
+        mutate(prop_students = num_students/population) %>%
+        filter(!is.na(prop_students),
+               !is.na(gdp_per_capita))
+      
+      fit <- lm(prop_students ~ log(gdp_per_capita), data = prop_gdp) %>%
+        fitted.values()
+      
       plot_ly(
-          data = country_indicators,
-          x = ~gdp_per_capita, 
-          y = ~num_students,
+          data = prop_gdp,
+          x = ~log(gdp_per_capita), 
+          y = ~prop_students,
           frame = ~year,
           color = I("#405568"),
           size = ~population,
           hoverinfo = 'text',
           text = ~paste('<b>Country:</b>', country_name.x, 
                         '</br>', "<b>GDP Per Capita:</b>", gdp_per_capita, '<br>',
-                        '<b># of Students:</b>', num_students, '</br>'),
+                        '<b>Proportion:</b>', prop_students, '</br>'),
           type = 'scatter',
           width = 900, 
-          height = 600
+          height = 600,
+          mode = "markers"
         ) %>%
         animation_opts(1000, easing = "elastic", redraw = FALSE) %>%
           layout(title = 'Number of International Students in the United States',
-                 xaxis = list(title = "Gross Domestic Product Per Capita ($)", zeroline = F, dtick = 25000, tickformat = ",d"),
-                 yaxis = list(title = "Number of Students", zeroline = F, tickformat = ",d"), 
-                 margin = list(l = 150, r = -20, b = 20, t = -10)) %>%
-          config(displayModeBar = F)
-        }
+                 xaxis = list(title = "Gross Domestic Product Per Capita ($)"),
+                 yaxis = list(title = "Proportion", zeroline = F, tickformat = ",d"), 
+                 margin = list(l = 150, r = -20, b = 20, t = -10),
+                 showlegend = F) %>%
+          config(displayModeBar = F) %>% 
+        add_markers(y = ~prop_students) %>% 
+        add_trace(x = ~log(gdp_per_capita), y = ~fit, mode = "lines")
+      
+       
+       }
 
     else if (input$indicator == "free_expression") {
       
-        plot_ly(data = country_indicators,
+      prop_expression <- country_indicators %>%
+        mutate(prop_students = num_students/population) %>%
+        filter(!is.na(prop_students),
+               !is.na(freedom_expression))
+      
+      fit <- lm(prop_students ~ freedom_expression, data = prop_expression) %>%
+        fitted.values()
+      
+        plot_ly(data = prop_expression,
         x = ~freedom_expression, 
-        y = ~num_students,
+        y = ~prop_students,
         frame = ~year,
         color = I("#E3AB4A"), 
         size = ~population,
         hoverinfo = "text",
         text = ~paste('<b>Country:</b>', country_name.x, 
                       '</br>', "<b>Freedom of Expression:</b>", freedom_expression, '<br>',
-                      '<b># of Students:</b>', num_students, '</br>'),
+                      '<b>Proportion:</b>', prop_students, '</br>'),
         type = 'scatter',
         width = 900, 
         height = 600
@@ -240,25 +273,37 @@ server <- function(input, output) {
             zeroline = F
           ),
           yaxis = list(
-            title = "Number of Students",
+            title = "Proportion of Country Population",
             zeroline = F,
             tickformat = ",d"
           ),
-          margin = list(l = 150, r = -20, b = 20, t = -10)
+          margin = list(l = 150, r = -20, b = 20, t = -10),
+          showlegend = F
           
         ) %>%
-        config(displayModeBar = F) 
+        config(displayModeBar = F) %>% 
+          add_markers(y = ~prop_students) %>% 
+          add_trace(x = ~ freedom_expression, y = ~fit, mode = "lines")
     }
 
     else if (input$indicator == "edu_equality") {
-      plot_ly(data = country_indicators, x = ~education_equality, y = ~num_students,
+      
+      prop_edueq <- country_indicators %>%
+        mutate(prop_students = num_students/population) %>%
+        filter(!is.na(prop_students),
+               !is.na(education_equality))
+      
+      fit <- lm(prop_students ~ education_equality, data = prop_edueq) %>%
+        fitted.values()
+      
+      plot_ly(data = prop_edueq, x = ~education_equality, y = ~prop_students,
         frame = ~year,
         color = I("#A1C6B7"),
         size = ~population,
         hoverinfo = "text",
         text = ~paste('<b>Country:</b>', country_name.x, 
                              '</br>', "<b>Educational Equality</b>", education_equality, '<br>',
-                             '<b># of Students:</b>', num_students, '</br>'),
+                             '<b>Proportion:</b>', prop_students, '</br>'),
         type = 'scatter',
         width = 900, 
         height = 600)  %>%
@@ -271,27 +316,39 @@ server <- function(input, output) {
             zeroline = F
           ),
           yaxis = list(
-            title = "Number of Students",
+            title = "Proportion of Country Population",
             zeroline = F, 
             tickformat = ",d"
           
           ),
-          margin = list(l = 150, r = -20, b = 20, t = -10)
+          margin = list(l = 150, r = -20, b = 20, t = -10),
+          showlegend = F
         ) %>%
-        config(displayModeBar = F)
+        config(displayModeBar = F) %>% 
+        add_markers(y = ~prop_students) %>% 
+        add_trace(x = ~ education_equality, y = ~fit, mode = "lines")
         
     }
     
     else if (input$indicator == "free_movement") {
-      plot_ly(data = country_indicators, x = ~freedom_foreign_movement, 
-              y = ~num_students,
+      
+      prop_movement <- country_indicators %>%
+        mutate(prop_students = num_students/population) %>%
+        filter(!is.na(prop_students),
+               !is.na(freedom_foreign_movement))
+      
+      fit <- lm(prop_students ~ freedom_foreign_movement, data = prop_movement) %>%
+        fitted.values()
+      
+      plot_ly(data = prop_movement, x = ~freedom_foreign_movement, 
+              y = ~prop_students,
               frame = ~year,
               color = I("#CF4E3E"),
               size = ~population,
               hoverinfo = "text",
               text = ~paste('<b>Country:</b>', country_name.x, 
                             '</br>', "<b>Freedom of Foreign Movement:</b>", freedom_foreign_movement, '<br>',
-                            '<b># of Students:</b>', num_students, '</br>'),
+                            '<b>Proportion:</b>', prop_students, '</br>'),
               type = 'scatter',
               width = 900, 
               height = 600)  %>%
@@ -304,14 +361,17 @@ server <- function(input, output) {
             zeroline = F
           ),
           yaxis = list(
-            title = "Number of Students",
+            title = "Proportion of Country Population",
             zeroline = F, 
             tickformat = ",d"
             
           ),
-          margin = list(l = 150, r = -20, b = 20, t = -10)
+          margin = list(l = 150, r = -20, b = 20, t = -10),
+          showlegend = F
         ) %>%
-        config(displayModeBar = F)
+        config(displayModeBar = F) %>% 
+        add_markers(y = ~prop_students) %>% 
+        add_trace(x = ~ freedom_foreign_movement, y = ~fit, mode = "lines")
     }
   }
 )
@@ -419,22 +479,6 @@ server <- function(input, output) {
                                                '</sup>'))) %>% 
       config(displayModeBar = FALSE)
   })
-  
-  # %>%
-  #   mutate(field = relevel(field, c(
-  #     "Business Management",
-  #     "Education",
-  #     "Engineering",
-  #     "Math/CS",
-  #     "Physical & Life Sciences",
-  #     "Social Sciences",
-  #     "Humanities",
-  #     "Fine Arts",
-  #     "Health Professions",
-  #     "Intensive English",
-  #     "Undeclared",
-  #     "Other"
-  #   ))) 
   
 }
 

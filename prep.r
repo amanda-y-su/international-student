@@ -73,6 +73,8 @@ enrollment <- read_xlsx("raw-data/International-Students-Enrollment.xlsx", skip 
   clean_names() %>%
   slice(53:71)
 
+enrollment$percent_change <- as.numeric(enrollment$percent_change)
+
 write_rds(enrollment, "clean-data/enrollment.rds")
 
 write_rds(country_indicators, "clean-data/country_indicators.rds")
