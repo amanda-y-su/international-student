@@ -1,3 +1,5 @@
+#load relevant packages 
+
 library(tidyverse)
 library(shiny)
 library(shinythemes)
@@ -10,57 +12,90 @@ library(RColorBrewer)
 library(janitor)
 library(networkD3)
 
+# read in country_indicators data from rds file in app directory 
+
 country_indicators <- read_rds("country_indicators.rds")
+
+# read in funding data from rds file in app directory 
+
 funding <- read_rds("funding.rds")
+
+# read in enrollment data from rds file in app directory 
+
 enrollment <- read_rds("enrollment.rds")
 
+# create user interface for shiny app 
+
 ui <- fluidPage(
+  
+  # use flatly shiny theme 
+  
   theme = shinytheme("flatly"),
+  
+  # create navigation buy with a header title 
   navbarPage(
     "International Students in the United States",
 
+    # create a panel in the navigation bar named "Background"
     tabPanel(
       "Background",
+      
+      # add a header and text about the brief recent history of international students in the U.S. 
       
       h2("A History"),
       p("The United States currently has the world’s largest international student population, hosting about 1.1 million of the 4.6 million Internationals students enrolled worldwide in 2017. Since the 1950s, this number has experienced steady growth. In the 2016-2017 school year, international students constituted 5 percent of the total population enrolled in U.S. higher education."),
       
+      # output "total" plot created in the server below 
+      
       plotlyOutput("total"),
       
+      # add a line break and another paragraph about trends in international students in the U.S.
       br(),
-      
       p("Despite previous trends of growth, the number of international students newly enrolling at a U.S. institution dropped for the first time in recent years in fall 2016. A national survey of staff at more than 500 U.S. higher education institutions showed a 7 percent decline in new international student enrollment in fall 2017, according to the Migration Policy Institute. Survey participants attributed the drop to a combination of factors including visa delays and denials, the costs of U.S. higher education, the shifting social and political climate, notably after the election of President Donald Trump, competition from institutions in other countries, and prospective students’ concerns about securing a job in the United States after graduation."),
-      
       br(),
       
+      #output enrollment plot created in server below
       plotlyOutput("enrollment"),
-      
-    
       br(),
       
+      
+      # add a header and text about my project
       h2("A Study"),
       p("This project looks to analyze various patterns in the experiences and motivations of international students in the United States. I visualize in several ways the distribution of international students across regions of origin from 2009 to 2019, the different indicators in countries of origin that may influence how many international students study in the U.S., the distribution of international students' fields of study, and the distribution of their primary sources of funding."),
       p("I used data from the Institute of International Education, the World Bank, and Varieties of Democracy. IIE tracked the number of international students in the U.S. and their countries of origin throughout the last decade and also provided the numbers I used to visualize the distribution of primary funding sources and fields of study.The World Bank dataset provides hundreds of statistics for different country indicators, including Gross Domestic Product per capita and population. The Varieties of Democracy dataset measures democracy in different countries by hundreds of factors, including my variables of interest: education equality, freedom of academic and cultural expression, and freedom of foreign movement."),
       p("The source code for this project can be found at my GitHub ",
+        
+        # add a hyperlink to my github 
+        
         a("here",
           href = "https://github.com/amanda-y-su/international-student"),"."),
       br()
 
     ),
 
-
+    # create a tab panel with the title "Geographical Regions of Origin"
+    
     tabPanel(
       "Geographical Regions of Origin",
         
+      
+      # output my region plot created in server below
           plotlyOutput("region")
           
     ),
 
+    # create a tab panel with the title Indicators of Countries of Origin 
+    
     tabPanel(
       "Indicators of Countries of Origin",
+      
+      # create a selection bar where users can choose an indicator scatterplot to view 
+      
       selectInput("indicator",
         label = h5("Select from the following plots to see the correlation between various country of origin indicators and the number of international students in the U.S. from those countries"),
-        choices = list(
+       
+        # list available choices which each match a plot created in server below
+         choices = list(
           "Gross Domestic Product Per Capita" = "gdp",
           "Freedom of Expression" = "free_expression",
           "Educational Equality" = "edu_equality",
@@ -72,21 +107,34 @@ ui <- fluidPage(
         width = "400px",
         size = 1
       ),
+      
+      #output plot from country_indicator in server below (whichever one was selected)
+      
       plotlyOutput("country_indicator")
     ),
+    
+    #create a tab panel named "Fields of Study"
     
     tabPanel(
       "Fields of Study",
       
+      # output field of study plot created in server below 
+      
       plotlyOutput("field")
     ),
 
+    # create a tab panel named funding 
+    
     tabPanel(
       "Sources of Funding",
 
+      # output funding plot created in server below 
+      
       plotlyOutput("funding")
     ),
-    
+
+    # create a tab panel titled About which will include information about me and hyperlinks to my website, social media profiles, etc.
+  
     tabPanel(
       "About",
       h2("Amanda Y. Su"),
@@ -101,17 +149,15 @@ ui <- fluidPage(
       p("— Visit my ",
         a("personal website",
         href = "https://www.amanda-su.com/"))
-
       
     )
   )
 )
 
-
-
-
+# create server with code for shiny app 
 
 server <- function(input, output) {
+  
   
   output$total <- renderPlotly ({
     
