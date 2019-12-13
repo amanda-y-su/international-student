@@ -59,7 +59,7 @@ ui <- fluidPage(
       br(),
       
       p("Despite previous trends of growth, the number of international students 
-        newly enrolling at a U.S. institution dropped for the first time in recent years 
+        newly enrolling at a U.S. higher education institution dropped for the first time in recent years 
         in fall 2016. A national survey of staff at more than 500 U.S. higher 
         education institutions showed a 7 percent decline in new international 
         student enrollment in fall 2017, according to the Migration Policy Institute. 
@@ -80,7 +80,8 @@ ui <- fluidPage(
       # add a header and text about my project
       
       h2("A Study"),
-      p("This project looks to analyze various patterns in the experiences and motivations of international students in the United States. I visualize in several ways the distribution of international students across regions of origin from 2009 to 2019, the different indicators in countries of origin that may influence how many international students study in the U.S., the distribution of international students' fields of study, and the distribution of their primary sources of funding."),
+      p("This project looks to analyze various patterns in the experiences and motivations of international students pursuing higher education
+        in the United States. I visualize in several ways the distribution of international students across regions of origin from 2009 to 2019, the different indicators in countries of origin that may influence how many international students study in the U.S., the distribution of international students' fields of study, and the distribution of their primary sources of funding."),
       p("I used data from the Institute of International Education, the World Bank, and Varieties of Democracy. IIE tracked the number of international students in the U.S. and their countries of origin throughout the last decade and also provided the numbers I used to visualize the distribution of primary funding sources and fields of study. The World Bank dataset provides hundreds of statistics for different country indicators, including Gross Domestic Product per capita and population. The Varieties of Democracy dataset measures democracy in different countries by hundreds of factors, including my variables of interest: educational equality, freedom of academic and cultural expression, and freedom of foreign movement."),
       p(
         "The source code for this project can be found at my GitHub ",
@@ -138,11 +139,114 @@ ui <- fluidPage(
       )
     ),
 
-    # create a tab panel with the title Indicators of Countries of Origin
+    # create a tab panel which explains what each of the indicators means
 
     tabPanel(
       "Indicators of Countries of Origin",
+      
       tabsetPanel(
+        tabPanel(
+          "Background",
+          
+          h3("Gross Domestic Product Per Capita"),
+          h4("Indicator Explanation"),
+          fixedRow(
+            column(
+              7,
+              p("GDP per capita is a measure of a country's economic output that accounts for its number of people. 
+          It divides the country's gross domestic product by its total population. That makes it a good measurement of a
+            country's standard of living. It tells you how prosperous a country feels to each of its citizens."))),
+
+          h3("Freedom of Academic and Cultural Expression"),
+          h4("Indicator Explanation"),
+          fixedRow(
+            column(
+              2,
+              p("Question: Is there academic freedom and freedom of cultural expression related to political issues?")
+            ),
+            column(
+              7,
+              p("Responses:"),
+              p("0: Not respected by public authorities. Censorship and intimidation are frequent. 
+      Academic activities and cultural expressions are severely restricted or controlled by the government."),
+              p("1: Weakly respected by public authorities. Academic freedom and freedom of cultural expression 
+      are practiced occasionally, but direct criticism of the government is mostly met with repression."),
+              p("2: Somewhat respected by public authorities. Academic freedom and freedom of cultural 
+      expression are practiced routinely, but strong criticism of the government is sometimes met with repression."),
+              p("3: Mostly respected by public authorities. There are few limitations on academic freedom 
+      and freedom of cultural expression, and resulting sanctions tend to be infrequent and soft."),
+              p("4: Fully respected by public authorities. There are no restrictions on academic freedom or cultural expression.")
+            )
+          ),
+          
+          h3("Edcuational Equality"),
+          h4("Indicator Explanation"),
+          fixedRow(
+            column(
+              2,
+              p("Question: To what extent is high quality basic education guaranteed to all, 
+        sufficient to enable them to exercise their basic rights as adult citizens? 
+        Basic education refers to ages typically between 6 and 16 years of age 
+          but this varies slightly among countries.")
+            ),
+            column(
+              7,
+              p("Responses:"),
+              p("0: Extreme. Provision of high quality basic education is extremely unequal 
+      and at least 75 percent (%) of children receive such low-quality education that 
+      undermines their ability to exercise their basic rights as adult citizens."),
+              p("1: Unequal. Provision of high quality basic education is extremely unequal and 
+      at least 25 percent (%) of children receive such low-quality education that 
+      undermines their ability to exercise their basic rights as adult citizens."),
+              p("2: Somewhat equal. Basic education is relatively equal in quality 
+      but ten to 25 percent (%) of children receive such low-quality education 
+      that undermines their ability to exercise their basic rights as adult citizens."),
+              p("3: Relatively equal. Basic education is overall equal in quality but five 
+      to ten percent (%) of children receive such low-quality education that probably 
+      undermines their ability to exercise their basic rights as adult citizens."),
+              p("4: Equal. Basic education is equal in quality and less than five percent (%) 
+        of children receive such low-quality education that probably undermines 
+        their ability to exercise their basic rights as adult citizens.")
+            )
+          ),
+          
+          h3("Freedom of Foreign Movement"),
+          h4("Indicator Explanation"),
+          fixedRow(
+            column(
+              2,
+              p("Question: Is there freedom of foreign travel and emigration? 
+      This indicator specifies the extent to which citizens are able to travel 
+      freely to and from the country and to emigrate without being subject to 
+      restrictions by public authorities.")
+            ),
+            column(
+              7,
+              p("Responses:"),
+              p("0: Not respected by public authorities. Citizens are rarely allowed to emigrate 
+      or travel out of the country. Transgressors (or their families) are severely punished. 
+      People discredited by the public authorities are routinely exiled or prohibited from traveling."),
+              p("1: Weakly respected by public authorities. The public authorities systematically 
+      restrict the right to travel, especially for political opponents or particular social 
+      groups. This can take the form of general restrictions on the duration of stays 
+      abroad or delays/refusals of visas."),
+              p("2: Somewhat respected by the public authorities. The right to travel for leading political 
+      opponents or particular social groups is occasionally restricted but ordinary citizens 
+      only met minor restrictions."),
+              p("3: Mostly respected by public authorities. Limitations on freedom of movement 
+      and residence are not directed at political opponents but minor restrictions 
+      exist. For example, exit visas may be required and citizens may be prohibited 
+      from traveling outside the country when accompanied by other members of their family."),
+              p("4: Fully respected by the government. The freedom of citizens to travel from 
+        and to the country, and to emigrate and repatriate, is not restricted by 
+        public authorities.")
+            )
+          )
+          ),
+          
+        # add a panel which will display the scatterplots explaining proportion of international students
+        # as a function of a country indicator 
+        
         tabPanel(
           "Graphs",
 
@@ -175,99 +279,56 @@ ui <- fluidPage(
         
         tabPanel(
           "Analysis",
-          h3("Gross Domestic Product Per Capita"),
-          p("something"),
           
-          h4("Regression"),
-
-          h3("Freedom of Academic and Cultural Expression"),
-          fixedRow(
-            column(
-              2,
-              p("Question: Is there academic freedom and freedom of cultural expression related to political issues?")
-            ),
-            column(
-              4,
-              p("Responses:"),
-              p("0: Not respected by public authorities. Censorship and intimidation are frequent. 
-      Academic activities and cultural expressions are severely restricted or controlled by the government."),
-              p("1: Weakly respected by public authorities. Academic freedom and freedom of cultural expression 
-      are practiced occasionally, but direct criticism of the government is mostly met with repression."),
-              p("2: Somewhat respected by public authorities. Academic freedom and freedom of cultural 
-      expression are practiced routinely, but strong criticism of the government is sometimes met with repression."),
-              p("3: Mostly respected by public authorities. There are few limitations on academic freedom 
-      and freedom of cultural expression, and resulting sanctions tend to be infrequent and soft."),
-              p("4: Fully respected by public authorities. There are no restrictions on academic freedom or cultural expression.")
-            )
-          ),
-          h4("Regression"),
-          p("something"),
-
-          h3("Edcuational Equality"),
-          fixedRow(
-            column(
-              2,
-              p("Question: To what extent is high quality basic education guaranteed to all, 
-        sufficient to enable them to exercise their basic rights as adult citizens? 
-        Basic education refers to ages typically between 6 and 16 years of age 
-          but this varies slightly among countries.")
-            ),
-            column(
-              4,
-              p("Responses:"),
-              p("0: Extreme. Provision of high quality basic education is extremely unequal 
-      and at least 75 percent (%) of children receive such low-quality education that 
-      undermines their ability to exercise their basic rights as adult citizens."),
-              p("1: Unequal. Provision of high quality basic education is extremely unequal and 
-      at least 25 percent (%) of children receive such low-quality education that 
-      undermines their ability to exercise their basic rights as adult citizens."),
-              p("2: Somewhat equal. Basic education is relatively equal in quality 
-      but ten to 25 percent (%) of children receive such low-quality education 
-      that undermines their ability to exercise their basic rights as adult citizens."),
-              p("3: Relatively equal. Basic education is overall equal in quality but five 
-      to ten percent (%) of children receive such low-quality education that probably 
-      undermines their ability to exercise their basic rights as adult citizens."),
-              p("4: Equal. Basic education is equal in quality and less than five percent (%) 
-        of children receive such low-quality education that probably undermines 
-        their ability to exercise their basic rights as adult citizens.")
-            )
-          ),
-          h4("Regression"),
-          p("something"),
-
-          h3("Freedom of Foreign Movement"),
-          fixedRow(
-            column(
-              2,
-              p("Question: Is there freedom of foreign travel and emigration? 
-      This indicator specifies the extent to which citizens are able to travel 
-      freely to and from the country and to emigrate without being subject to 
-      restrictions by public authorities.")
-            ),
-            column(
-              4,
-              p("Responses:"),
-              p("0: Not respected by public authorities. Citizens are rarely allowed to emigrate 
-      or travel out of the country. Transgressors (or their families) are severely punished. 
-      People discredited by the public authorities are routinely exiled or prohibited from traveling."),
-              p("1: Weakly respected by public authorities. The public authorities systematically 
-      restrict the right to travel, especially for political opponents or particular social 
-      groups. This can take the form of general restrictions on the duration of stays 
-      abroad or delays/refusals of visas."),
-              p("2: Somewhat respected by the public authorities. The right to travel for leading political 
-      opponents or particular social groups is occasionally restricted but ordinary citizens 
-      only met minor restrictions."),
-              p("3: Mostly respected by public authorities. Limitations on freedom of movement 
-      and residence are not directed at political opponents but minor restrictions 
-      exist. For example, exit visas may be required and citizens may be prohibited 
-      from traveling outside the country when accompanied by other members of their family."),
-              p("4: Fully respected by the government. The freedom of citizens to travel from 
-        and to the country, and to emigrate and repatriate, is not restricted by 
-        public authorities.")
-            )
-          ),
-          h4("Regression"),
-          p("something")
+          br(),
+          
+          p("Each of the four regression lines has a positive slope, 
+          indicating that there is a positive correlation between the 
+          indicators and the proportion of a country’s population that 
+          are international student in the U.S."),
+          
+          h4("GDP Per Capita"),
+          
+          p("The regression line 
+          with the steepest slope is the one that explains the proportion 
+          as a function of GDP per capita. This may be due to the fact that 
+          the more prosperous a country is, the more likely its citizens 
+          are able to afford the increasingly exorbitant costs of studying 
+          abroad in the U.S."),
+          
+          h4("Freedom of Academic and Cultural Expression"),
+          
+          p("The regression line with the flattest slope 
+          is the one that explains the proportion as a function of 
+          freedom of academic and cultural expression, revealing 
+          that there is little to no correlation between the two 
+          variables. I had assumed that there would be a more extreme 
+          positive correlation because limits on free cultural and 
+          academic expression could hinder access to and suppress 
+          desires for Western education."),
+          
+          h4("Freedom of Foreign Movement"),
+          
+          p("It made sense that the correlation 
+          between freedom of foreign movement and the proportion would be 
+          positive because countries that have more lax emigration laws 
+          would allow for more movement of international students out 
+          of the country."),
+          
+          h4("Educational Equality"),
+          
+          p("I was surprised by the 
+          positive slope of educational equality regression line because 
+          I had assumed that the more accessible education is in a country, 
+          the less likely it is many students would want to leave that 
+          country for the U.S. However, it’s likely that there is a 
+          positive relationship because students in countries with 
+          accessible basic education would be more likely to want to 
+          continue that education at U.S. higher education institutes 
+          whereas countries with many children who don’t even
+          have access to basic education would be extremely unlikely to 
+          pursue higher education in the U.S.")
+          
         )
       )
     ),
@@ -620,11 +681,11 @@ server <- function(input, output) {
       # using the cleaned prop_gdp data
       # extract fitted values from model
       
-      fit <- lm(prop_students ~ log(gdp_per_capita), data = prop_gdp) %>%
+      fit <- glm(prop_students ~ gdp_per_capita, data = prop_gdp) %>%
         fitted.values()
       
       # create plotly graph using data from prop_gdp 
-      # set x axis to log(gdp_per_capita) so that the data points are more spread out and easier to discern
+      # set x axis to gdp_per_capita 
       # set y axis to prop_students 
       # set the frame to year so that you can see the different data points for each year in the past decade
       # set the hoverinfo to the formatted text argument, which will display the country name, gdp_per_capita, 
@@ -634,7 +695,7 @@ server <- function(input, output) {
       
       plot_ly(
         data = prop_gdp,
-        x = ~ log(gdp_per_capita),
+        x = ~ gdp_per_capita,
         y = ~prop_students,
         frame = ~year,
         color = I("#405568"),
@@ -661,9 +722,9 @@ server <- function(input, output) {
         # don't display legend 
         
         layout(
-          title = "Number of International Students in the United States",
-          xaxis = list(title = "Gross Domestic Product Per Capita ($)"),
-          yaxis = list(title = "Proportion", zeroline = F, tickformat = ",d"),
+          title = "Proportion of Population that are International Students in the U.S.",
+          xaxis = list(title = "Gross Domestic Product Per Capita ($)", zeroline = F, tickformat = ",d"),
+          yaxis = list(title = "Proportion", zeroline = F),
           margin = list(l = 150, r = -20, b = 20, t = -10),
           showlegend = F
         ) %>%
@@ -675,7 +736,7 @@ server <- function(input, output) {
         # add regression line to scatterplot using the fit model created above
         
         add_markers(y = ~prop_students) %>%
-        add_trace(x = ~ log(gdp_per_capita), y = ~fit, mode = "lines")
+        add_trace(x = ~ gdp_per_capita, y = ~fit, mode = "line")
     }
 
     # perform the following actions if the indicator selected in ui input is "free_expression"
@@ -744,15 +805,14 @@ server <- function(input, output) {
         # don't display legend 
         
         layout(
-          title = "Number of International Students in the United States",
+          title = "Proportion of Population that are International Students in the U.S.",
           xaxis = list(
             title = "Freedom of Academic and Cultural Expression",
             zeroline = F
           ),
           yaxis = list(
             title = "Proportion of Country Population",
-            zeroline = F,
-            tickformat = ",d"
+            zeroline = F
           ),
           margin = list(l = 150, r = -20, b = 20, t = -10),
           showlegend = F
@@ -833,15 +893,14 @@ server <- function(input, output) {
         # don't display legend 
         
         layout(
-          title = "Number of International Students in the United States",
+          title = "Proportion of Population that are International Students in the U.S.",
           xaxis = list(
             title = "Educational Equality",
             zeroline = F
           ),
           yaxis = list(
             title = "Proportion of Country Population",
-            zeroline = F,
-            tickformat = ",d"
+            zeroline = F
           ),
           margin = list(l = 150, r = -20, b = 20, t = -10),
           showlegend = F
@@ -922,15 +981,14 @@ server <- function(input, output) {
         # don't display legend 
         
         layout(
-          title = "Number of International Students in the United States",
+          title = "Proportion of Population that are International Students in the U.S.",
           xaxis = list(
             title = "Freedom of Foreign Movement",
             zeroline = F
           ),
           yaxis = list(
             title = "Proportion of Country Population",
-            zeroline = F,
-            tickformat = ",d"
+            zeroline = F
           ),
           margin = list(l = 150, r = -20, b = 20, t = -10),
           showlegend = F
