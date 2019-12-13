@@ -13,6 +13,8 @@ library(janitor)
 library(networkD3)
 library(infer)
 library(broom)
+library(htmltools)
+library(vembedr)
 
 # read in country_indicators data from rds file in app directory
 
@@ -92,6 +94,15 @@ ui <- fluidPage(
           href = "https://github.com/amanda-y-su/international-student"
         ), "."
       ),
+      
+      # embed video walkthrough in app
+      
+      h4("Walkthrough"),
+      
+      embed_url("https://www.youtube.com/watch?v=6MoQSCqxKmo"),
+      
+      br(),
+      
       br()
     ),
 
@@ -282,10 +293,16 @@ ui <- fluidPage(
           
           br(),
           
-          p("Each of the four regression lines has a positive slope, 
+          p("The regression line for each of the indicator plots models 
+          a linear relationship between the proportion of a country's 
+          population that are international students in the U.S. 
+          and the indicators gross domestic product per capita, freedom 
+          of academic and cultural expression, educational equality, 
+          and freedom of foreign movement. Each of the four regression 
+          lines has a positive slope, 
           indicating that there is a positive correlation between the 
           indicators and the proportion of a country’s population that 
-          are international student in the U.S."),
+          are international students in the U.S."),
           
           h4("GDP Per Capita"),
           
